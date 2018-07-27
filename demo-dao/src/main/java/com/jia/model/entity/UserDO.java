@@ -1,6 +1,10 @@
 package com.jia.model.entity;
 
-public class UserDO {
+import java.io.Serializable;
+
+public class UserDO implements Serializable {
+
+    private static final long serialVersionUID = 5601567729392196798L;
 
     private Long id;
 

@@ -7,6 +7,7 @@ import com.jia.model.result.CodeMsg;
 import com.jia.model.result.Result;
 import com.jia.model.vo.UserListVO;
 import com.jia.model.vo.UserVO;
+import com.jia.redis.RedisService;
 import com.jia.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -29,6 +30,23 @@ public class UserController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    RedisService redisService;
+
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    public Result getAllUser() {
+        logger.info("Start to get all user");
+        Object allUser = redisService.get("allUser");
+        List<UserDO> userDOS;
+        if(allUser == null) {
+            userDOS = userService.findAllUser();
+            redisService.set("allUser", userDOS, 3600 * 2L);
+            return Result.success(userDOS);
+        } else {
+            return  Result.success(allUser);
+        }
+    }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public Result listUser(UserQueryParam userQueryParam, @Param("pageNum")int pageNum,
