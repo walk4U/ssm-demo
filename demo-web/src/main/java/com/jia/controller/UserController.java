@@ -9,6 +9,8 @@ import com.jia.model.vo.UserListVO;
 import com.jia.model.vo.UserVO;
 import com.jia.redis.RedisService;
 import com.jia.service.UserService;
+import com.jia.service.password.PasswordEncrypt;
+import com.jia.shiro.ShiroUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -16,12 +18,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.List;
 
+/**
+ * @Auther: jia
+ * @Date: 2018/7/27 13:50
+ * @Description:
+ */
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -33,6 +42,9 @@ public class UserController {
 
     @Autowired
     RedisService redisService;
+
+    @Autowired
+    PasswordEncrypt passwordEncrypt;
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     public Result getAllUser() {
@@ -64,12 +76,13 @@ public class UserController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public Result register(UserDO userDO) {
+    public Result register(@RequestBody UserDO userDO) {
         if(userDO == null || StringUtils.isBlank(userDO.getAccount())
                 || StringUtils.isBlank(userDO.getPassword())
                 || StringUtils.isBlank(userDO.getName())) {
             return Result.fail(CodeMsg.PARAMETER_ISNULL);
         }
+        passwordEncrypt.encryptPassword(userDO);
         int i = userService.insert(userDO);
         if(i==1) {
             return Result.success();
@@ -79,12 +92,12 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    private Result login(String account, String password) {
-        if(StringUtils.isBlank(account) || StringUtils.isBlank(password)) {
+    private Result login(@RequestBody UserDO user) {
+        if(user ==null || StringUtils.isBlank(user.getAccount()) || StringUtils.isBlank(user.getPassword())) {
             return Result.fail(CodeMsg.PARAMETER_ISNULL);
         }
         // 创建用户登录信息
-        UsernamePasswordToken token = new UsernamePasswordToken(account, password);
+        UsernamePasswordToken token = new UsernamePasswordToken(user.getAccount(), user.getPassword());
         token.setRememberMe(false);
         try {
             // 登录，如果失败，会有相应的异常抛出
@@ -105,6 +118,13 @@ public class UserController {
     public Result logout() {
         SecurityUtils.getSubject().logout();
         return Result.success();
+    }
+
+    @RequestMapping(value = "/getUserInfo", method = RequestMethod.GET)
+    public Result getUserInfo() {
+        UserDO userDO = ShiroUtil.getUser();
+        UserVO userVO = UserVO.convertToVo(userDO);
+        return Result.success(userVO);
     }
 
 }

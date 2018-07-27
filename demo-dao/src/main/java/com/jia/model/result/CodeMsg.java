@@ -24,6 +24,7 @@ public class CodeMsg {
     public static CodeMsg ACCOUNT_OR_PSW_ERR = new CodeMsg(500106,"用户名或密码错误");
     public static CodeMsg ACCOUNT_LOCKED = new CodeMsg(500107,"账号被锁定");
     public static CodeMsg AUTHOR_ERR = new CodeMsg(500108,"登录失败");
+    public static CodeMsg NO_LOGIN = new CodeMsg(500109,"未登录");
 
     public CodeMsg(int code, String message) {
         this.code = code;
@@ -45,4 +46,5 @@ public class CodeMsg {
     public void setMessage(String message) {
         this.message = message;
     }
+
 }

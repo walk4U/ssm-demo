@@ -5,6 +5,11 @@ import com.jia.model.param.UserQueryParam;
 
 import java.util.List;
 
+/**
+ * @Auther: jia
+ * @Date: 2018/7/27 14:50
+ * @Description:
+ */
 public interface UserService {
 
     int insert(UserDO userDO);

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+    
+    <!-- ehCache 配置管理器 -->
+    <bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+        <property name="configLocation" value="classpath:ehcache.xml" />
+        <!--true:单例，一个cacheManager对象共享；false：多个对象独立  -->
+        <property name="shared" value="true" />
+        <property name="cacheManagerName" value="ehcacheManager" />
+    </bean>
+
+    <!-- ehcache对象 -->
+    <bean id="memcache" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+    	<!-- cache名称与ehcache.xml中的配置名成对应 -->
+       <property name="cacheName" value="memcache"/>
+       <property name="cacheManager" ref="ehcacheManager"/>
+    </bean>
+
+</beans>
